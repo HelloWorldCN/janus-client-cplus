@@ -1461,128 +1461,127 @@ namespace vi {
 			context->pcObserver->setRemoveTrackCallback(rtcb);
 
 			context->pc = _pcf->CreatePeerConnection(pcConfig, nullptr, nullptr, context->pcObserver.get());
-
-			if (addTracks && stream) {
-				DLOG("Adding local stream");
-				bool simulcast2 = event->simulcast2.value_or(false);
-				for (auto track : stream->GetAudioTracks()) {
-					std::string id = stream->id();
+		}
+		if (addTracks && stream) {
+			DLOG("Adding local stream");
+			bool simulcast2 = event->simulcast2.value_or(false);
+			for (auto track : stream->GetAudioTracks()) {
+				std::string id = stream->id();
+				webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>> result = context->pc->AddTrack(track, { stream->id() });
+				if (!result.ok()) {
+					DLOG("Add track error message: {}", result.error().message());
+				}
+			}
+			for (auto track : stream->GetVideoTracks()) {
+				if (!simulcast2) {
+					//context->pc->AddTrack(track, { stream->id() });
 					webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>> result = context->pc->AddTrack(track, { stream->id() });
 					if (!result.ok()) {
 						DLOG("Add track error message: {}", result.error().message());
 					}
 				}
-				for (auto track : stream->GetVideoTracks()) {
-					if (!simulcast2) {
-						//context->pc->AddTrack(track, { stream->id() });
-						webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>> result = context->pc->AddTrack(track, { stream->id() });
-						if (!result.ok()) {
-							DLOG("Add track error message: {}", result.error().message());
+				else {
+					DLOG("Enabling rid-based simulcasting, track-id: {}", track->id());
+					webrtc::RtpTransceiverInit init;
+					init.direction = webrtc::RtpTransceiverDirection::kSendRecv;
+					init.stream_ids = { stream->id() };
+
+					webrtc::RtpEncodingParameters ph;
+					ph.rid = "h";
+					ph.active = true;
+					ph.max_bitrate_bps = 900000;
+
+					webrtc::RtpEncodingParameters pm;
+					pm.rid = "m";
+					pm.active = true;
+					pm.max_bitrate_bps = 300000;
+					pm.scale_resolution_down_by = 2;
+
+					webrtc::RtpEncodingParameters pl;
+					pl.rid = "m";
+					pl.active = true;
+					pl.max_bitrate_bps = 100000;
+					pl.scale_resolution_down_by = 4;
+
+					init.send_encodings.emplace_back(ph);
+					init.send_encodings.emplace_back(pm);
+					init.send_encodings.emplace_back(pl);
+
+					context->pc->AddTransceiver(track, init);
+				}
+			}
+		}
+
+		if (HelperUtils::isDataEnabled(event->media.value()) &&
+			context->dataChannels.find("JanusDataChannel") == context->dataChannels.end()) {
+			DLOG("Creating default data channel");
+			auto dccb = std::make_shared<DataChannelCallback>([wself = weak_from_this(), handleId](rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
+				DLOG("Data channel created by Janus.");
+				if (auto self = wself.lock()) {
+					// should be called in SERVICE thread
+					TMgr->thread(ThreadName::SERVICE)->PostTask(RTC_FROM_HERE, [wself, handleId, dataChannel]() {
+						if (auto self = wself.lock()) {
+							self->createDataChannel(handleId, dataChannel->label(), dataChannel);
 						}
-					}
-					else {
-						DLOG("Enabling rid-based simulcasting, track-id: {}", track->id());
-						webrtc::RtpTransceiverInit init;
-						init.direction = webrtc::RtpTransceiverDirection::kSendRecv;
-						init.stream_ids = { stream->id() };
-
-						webrtc::RtpEncodingParameters ph;
-						ph.rid = "h";
-						ph.active = true;
-						ph.max_bitrate_bps = 900000;
-
-						webrtc::RtpEncodingParameters pm;
-						pm.rid = "m";
-						pm.active = true;
-						pm.max_bitrate_bps = 300000;
-						pm.scale_resolution_down_by = 2;
-
-						webrtc::RtpEncodingParameters pl;
-						pl.rid = "m";
-						pl.active = true;
-						pl.max_bitrate_bps = 100000;
-						pl.scale_resolution_down_by = 4;
-
-						init.send_encodings.emplace_back(ph);
-						init.send_encodings.emplace_back(pm);
-						init.send_encodings.emplace_back(pl);
-
-						context->pc->AddTransceiver(track, init);
-					}
+					});
 				}
-			}
+			});
+			context->pcObserver->setDataChannelCallback(dccb);
+		}
 
-			if (HelperUtils::isDataEnabled(event->media.value()) && 
-				context->dataChannels.find("JanusDataChannel") == context->dataChannels.end()) {
-				DLOG("Creating default data channel");
-				auto dccb = std::make_shared<DataChannelCallback>([wself = weak_from_this(), handleId](rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel) {
-					DLOG("Data channel created by Janus.");
-					if (auto self = wself.lock()) {
-						// should be called in SERVICE thread
-						TMgr->thread(ThreadName::SERVICE)->PostTask(RTC_FROM_HERE, [wself, handleId, dataChannel]() {
-							if (auto self = wself.lock()) {
-								self->createDataChannel(handleId, dataChannel->label(), dataChannel);
-							}
-						});
-					}
-				});
-				context->pcObserver->setDataChannelCallback(dccb);
-			}
+		if (context->myStream) {
+			_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, context]() {
+				pluginClient->onCreateLocalStream(context->myStream);
+			});
+		}
 
-			if (context->myStream) {
-				_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, context]() {
-					pluginClient->onCreateLocalStream(context->myStream);
-				});
+		if (event->jsep == absl::nullopt) {
+			// TODO:
+			_createOffer(handleId, event);
+		}
+		else {
+			absl::optional<webrtc::SdpType> type = webrtc::SdpTypeFromString(event->jsep->type);
+			if (!type) {
+				DLOG("Invalid JSEP type");
+				return;
 			}
+			webrtc::SdpParseError spError;
+			std::unique_ptr<webrtc::SessionDescriptionInterface> desc = webrtc::CreateSessionDescription(type.value(),
+				event->jsep->sdp, &spError);
+			DLOG("spError: description: {}, line: {}", spError.description.c_str(), spError.line.c_str());
 
-			if (event->jsep == absl::nullopt) {
-				// TODO:
-				_createOffer(handleId, event);
-			}
-			else {
-				absl::optional<webrtc::SdpType> type = webrtc::SdpTypeFromString(event->jsep->type);
-				if (!type) {
-					DLOG("Invalid JSEP type");
-					return;
+			auto wself = weak_from_this();
+
+			SetSessionDescObserver* ssdo(new rtc::RefCountedObject<SetSessionDescObserver>());
+
+			ssdo->setSuccessCallback(std::make_shared<SetSessionDescSuccessCallback>([wself, context, handleId, event]() {
+				context->remoteSdp = { event->jsep->type, event->jsep->sdp, false };
+
+				for (const auto& candidate : context->candidates) {
+					context->pc->AddIceCandidate(candidate.get());
 				}
-				webrtc::SdpParseError spError;
-				std::unique_ptr<webrtc::SessionDescriptionInterface> desc = webrtc::CreateSessionDescription(type.value(),
-					event->jsep->sdp, &spError);
-				DLOG("spError: description: {}, line: {}", spError.description.c_str(), spError.line.c_str());
+				context->candidates.clear();
+				if (auto self = wself.lock()) {
+					// should be called in SERVICE thread
+					TMgr->thread(ThreadName::SERVICE)->PostTask(RTC_FROM_HERE, [wself, handleId, event]() {
+						if (auto self = wself.lock()) {
+							self->_createAnswer(handleId, event);
+						}
+					});
+				}
+			}));
 
-				auto wself = weak_from_this();
+			ssdo->setFailureCallback(std::make_shared<SetSessionDescFailureCallback>([event, wself](webrtc::RTCError error) {
+				DLOG("SetRemoteDescription() failure: {}", error.message());
+				auto self = wself.lock();
+				if (event->callback && self) {
+					self->_eventHandlerThread->PostTask(RTC_FROM_HERE, [cb = event->callback]() {
+						(*cb)(false, "failure");
+					});
+				}
+			}));
 
-				SetSessionDescObserver* ssdo(new rtc::RefCountedObject<SetSessionDescObserver>());
-
-				ssdo->setSuccessCallback(std::make_shared<SetSessionDescSuccessCallback>([wself, context, handleId, event]() {
-					context->remoteSdp = { event->jsep->type, event->jsep->sdp, false };
-
-					for (const auto& candidate : context->candidates) {
-						context->pc->AddIceCandidate(candidate.get());
-					}
-					context->candidates.clear();
-					if (auto self = wself.lock()) {
-						// should be called in SERVICE thread
-						TMgr->thread(ThreadName::SERVICE)->PostTask(RTC_FROM_HERE, [wself, handleId, event]() {
-							if (auto self = wself.lock()) {
-								self->_createAnswer(handleId, event);
-							}
-						});
-					}
-				}));
-
-				ssdo->setFailureCallback(std::make_shared<SetSessionDescFailureCallback>([event, wself](webrtc::RTCError error) {
-					DLOG("SetRemoteDescription() failure: {}", error.message());
-					auto self = wself.lock();
-					if (event->callback && self) {
-						self->_eventHandlerThread->PostTask(RTC_FROM_HERE, [cb = event->callback]() {
-							(*cb)(false, "failure");
-						});
-					}
-				}));
-
-				context->pc->SetRemoteDescription(ssdo, desc.release());
-			}
+			context->pc->SetRemoteDescription(ssdo, desc.release());
 		}
 	}
 
