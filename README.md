@@ -17,7 +17,7 @@
 * glew and WebRTC library(M85, release, webrtc.7z) have been included directly in this repository. 
 
 ## Features
-* video room (available)
+* video room (available, and multistream branch is also avaliable)
 * text room
 * video call
 * voice mail
