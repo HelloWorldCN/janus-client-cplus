@@ -10,7 +10,7 @@
 #include "message_models.h"
 #include "string_utils.h"
 #include "webrtc_service_events.h"
-#include "x2struct.hpp"
+#include "xpack.h"
 #include "api/media_stream_interface.h"
 #include "gl_video_renderer.h"
 #include "participant.h"

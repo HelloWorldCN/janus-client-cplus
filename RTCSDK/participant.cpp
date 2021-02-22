@@ -7,6 +7,7 @@
 #include "participant.h"
 #include "logger/logger.h"
 #include "video_room_models.h"
+#include "xpack/json.h"
 
 namespace vi {
 	Participant::Participant(const std::string& plugin, 
@@ -54,10 +55,10 @@ namespace vi {
 						return;
 					}
 					std::shared_ptr<JanusResponse> rar = std::make_shared<JanusResponse>();
-					x2struct::X::loadjson(response, *rar, false, true);
+					xpack::json::decode(response, *rar);
 				};
 				std::shared_ptr<vi::EventCallback> cb = std::make_shared<vi::EventCallback>(lambda);
-				event->message = x2struct::X::tojson(request);
+				event->message = xpack::json::encode(request);
 				event->callback = cb;
 				sendMessage(event);
 
@@ -87,10 +88,10 @@ namespace vi {
 					return;
 				}
 				std::shared_ptr<JanusResponse> rar = std::make_shared<JanusResponse>();
-				x2struct::X::loadjson(response, *rar, false, true);
+				xpack::json::decode(response, *rar);
 			};
 			std::shared_ptr<vi::EventCallback> cb = std::make_shared<vi::EventCallback>(lambda);
-			event->message = x2struct::X::tojson(request);
+			event->message = xpack::json::encode(request);
 			event->callback = cb;
 			sendMessage(event);
 		}
@@ -103,11 +104,12 @@ namespace vi {
 		DLOG(" ::: Got a message (subscriber) :::");
 
 		vr::VideoRoomEvent vrEvent;
-		x2struct::X::loadjson(data, vrEvent, false, true);
+		xpack::JsonDecoder decoder(data);
+		decoder.decode(nullptr, vrEvent, nullptr);
 
 		const auto& pluginData = vrEvent.plugindata;
 
-		if (!pluginData.xhas("plugin")) {
+		if (!decoder.find("plugin")) {
 			return;
 		}
 
@@ -115,7 +117,7 @@ namespace vi {
 			return;
 		}
 
-		if (!pluginData.data.xhas("videoroom")) {
+		if (!decoder.find("videoroom")) {
 			return;
 		}
 
@@ -123,7 +125,7 @@ namespace vi {
 
 		if (event == "attached") {
 			vr::SubscriberJoinEvent sjEvent;
-			x2struct::X::loadjson(data, sjEvent, false, true);
+			xpack::json::decode(data, sjEvent);
 
 			//TODO:
 			//int64_t remoteId = data.id;
@@ -136,14 +138,14 @@ namespace vi {
 			//const auto& temporal = data.temporal;
 
 			// TODO:
-			if (pluginData.data.xhas("error")) {
+			if (decoder.find("error")) {
 				DLOG("error event: {}", pluginData.data.error);
 			}
 		}
 
 		if (!jsepString.empty()) {
 			Jsep jsep;
-			x2struct::X::loadjson(jsepString, jsep, false, true);
+			xpack::json::decode(jsepString, jsep);
 			if (!jsep.type.empty() && !jsep.sdp.empty()) {
 				DLOG("Handling SDP as well...");
 				//// Answer and attach
@@ -167,11 +169,11 @@ namespace vi {
 							};
 
 							std::shared_ptr<vi::EventCallback> callback = std::make_shared<vi::EventCallback>(lambda);
-							event->message = x2struct::X::tojson(request);
+							event->message = xpack::json::encode(request);
 							Jsep jsep;
 							jsep.type = jsepConfig.type;
 							jsep.sdp = jsepConfig.sdp;
-							event->jsep = x2struct::X::tojson(jsep);
+							event->jsep = xpack::json::encode(jsep);
 							event->callback = callback;
 							self->sendMessage(event);
 						}

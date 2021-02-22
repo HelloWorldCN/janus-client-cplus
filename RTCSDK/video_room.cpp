@@ -8,10 +8,11 @@
 #include "string_utils.h"
 #include "logger/logger.h"
 #include "participant.h"
-#include "x2struct.hpp"
+#include "xpack/json_decoder.h"
 #include "thread_manager.h"
 #include "Service/app_instance.h"
 #include "video_room_api.h"
+#include "xpack/json.h"
 
 namespace vi {
 	VideoRoom::VideoRoom(std::shared_ptr<WebRTCServiceInterface> wrs)
@@ -124,11 +125,12 @@ namespace vi {
 		DLOG(" ::: Got a message (publisher).");
 
 		vr::VideoRoomEvent vrEvent;
-		x2struct::X::loadjson(data, vrEvent, false, true);
+		xpack::JsonDecoder decoder(data);
+		decoder.decode(nullptr, vrEvent, nullptr);
 
 		const auto& pluginData = vrEvent.plugindata;
 
-		if (!pluginData.xhas("plugin")) {
+		if (!decoder.find("plugin")) {
 			return;
 		}
 
@@ -136,7 +138,7 @@ namespace vi {
 			return;
 		}
 
-		if (!pluginData.data.xhas("videoroom")) {
+		if (!decoder.find("videoroom")) {
 			return;
 		}
 
@@ -144,7 +146,8 @@ namespace vi {
 
 		if (event == "joined") {
 			vr::PublisherJoinEvent pjEvent;
-			x2struct::X::loadjson(data, pjEvent, false, true);
+			xpack::JsonDecoder decoder(data);
+			decoder.decode(nullptr, pjEvent, nullptr);
 
 			const auto& pluginData = pjEvent.plugindata;
 			// Publisher/manager created, negotiate WebRTC and attach to existing feeds, if any
@@ -156,7 +159,7 @@ namespace vi {
 			publishOwnStream(true);
 
 			// Any new feed to attach to
-			if (pluginData.data.xhas("publishers")) {
+			if (decoder.find("publishers")) {
 				const auto& publishers = pluginData.data.publishers;
 				DLOG("Got a list of available publishers/feeds:");
 				for (const auto& pub : publishers) {
@@ -172,7 +175,7 @@ namespace vi {
 		}
 		else if (event == "event") {
 			// Any new feed to attach to
-			if (pluginData.data.xhas("publishers")) {
+			if (decoder.find("publishers")) {
 				const auto& publishers = pluginData.data.publishers;
 				DLOG("Got a list of available publishers/feeds:");
 				for (const auto& pub : publishers) {
@@ -182,7 +185,7 @@ namespace vi {
 				}
 			}
 
-			if (pluginData.data.xhas("leaving")) {
+			if (decoder.find("leaving")) {
 				const auto& leaving = pluginData.data.leaving;
 
 				// Figure out the participant and detach it
@@ -193,7 +196,7 @@ namespace vi {
 					}
 				}
 			}
-			else if (pluginData.data.xhas("unpublished")) {
+			else if (decoder.find("unpublished")) {
 				const auto& unpublished = pluginData.data.unpublished;
 				DLOG("Publisher left: {}", unpublished);
 
@@ -212,7 +215,7 @@ namespace vi {
 					}
 				}
 			}
-			else if (pluginData.data.xhas("error")) {
+			else if (decoder.find("error")) {
 				if (pluginData.data.error_code == 426) {
 					DLOG("No such room");
 				}
@@ -221,7 +224,7 @@ namespace vi {
 
 		if (!jsepString.empty()) {
 			Jsep jsep;
-			x2struct::X::loadjson(jsepString, jsep, false, true);
+			xpack::json::decode(jsepString, jsep);
 			if (!jsep.type.empty() && !jsep.sdp.empty()) {
 				DLOG("Handling SDP as well...");
 				// TODO:
@@ -306,11 +309,11 @@ namespace vi {
 						DLOG("publishOwnStream: {}", response.c_str());
 					};
 					std::shared_ptr<vi::EventCallback> callback = std::make_shared<vi::EventCallback>(lambda);
-					event->message = x2struct::X::tojson(request);
+					event->message = xpack::json::encode(request);
 					Jsep jp;
 					jp.type = jsep.type;
 					jp.sdp = jsep.sdp;
-					event->jsep = x2struct::X::tojson(jp);
+					event->jsep = xpack::json::encode(jp);
 					event->callback = callback;
 					self->sendMessage(event);
 				}
@@ -340,7 +343,7 @@ namespace vi {
 				DLOG("response: {}", response.c_str());
 			};
 			std::shared_ptr<vi::EventCallback> callback = std::make_shared<vi::EventCallback>(lambda);
-			event->message = x2struct::X::tojson(request);
+			event->message = xpack::json::encode(request);
 			event->callback = callback;
 			sendMessage(event);
 		}

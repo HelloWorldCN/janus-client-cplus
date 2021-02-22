@@ -7,10 +7,9 @@
 #pragma once
 
 #include <string>
-#include "x2struct.hpp"
+#include "xpack.h"
 
 namespace vi {
-	using namespace x2struct;
 
 	struct JanusRequest {
 		std::string janus;
@@ -18,7 +17,7 @@ namespace vi {
 		std::string apisecret;
 		std::string transaction;
 
-		XTOSTRUCT(O(janus, token, apisecret, transaction));
+		XPACK(O(janus, token, apisecret, transaction));
 	};
 
 	struct JanusResponse {
@@ -26,114 +25,114 @@ namespace vi {
 		std::string transaction;		
 		int64_t session_id = -1;
 		int64_t sender = -1;
-		XTOSTRUCT(O(janus, transaction, session_id, sender));
+		XPACK(O(janus, transaction, session_id, sender));
 	};
 
 	struct Jsep {
 		std::string type;
 		std::string sdp;
 
-		XTOSTRUCT(O(type, sdp));
+		XPACK(O(type, sdp));
 	};
 
 	struct JanusError {
 		int64_t code;
 		std::string reason;
 
-		XTOSTRUCT(O(code), O(reason));
+		XPACK(O(code), O(reason));
 	};
 
 	struct JanusData {
 		std::string videoroom;
 
-		XTOSTRUCT(O(videoroom));
+		XPACK(O(videoroom));
 	};
 
 	struct PluginData {
 		std::string plugin;
 		JanusData data;
 
-		XTOSTRUCT(O(plugin, data));
+		XPACK(O(plugin, data));
 	};
 
 	struct ReconnectRequest : public JanusRequest {
 		int64_t session_id;
 
-		XTOSTRUCT(I(JanusRequest), O(session_id));
+		XPACK(I(JanusRequest), O(session_id));
 	};
 
 	struct KeepAliveRequest : public JanusRequest {
 		int64_t session_id;
 
-		XTOSTRUCT(I(JanusRequest), O(session_id));
+		XPACK(I(JanusRequest), O(session_id));
 	};
 
 	struct AttachRequest : public JanusRequest {
 		int64_t session_id;
 		std::string plugin;
 		std::string opaque_id;
-		XTOSTRUCT(I(JanusRequest), O(session_id, plugin, opaque_id));
+		XPACK(I(JanusRequest), O(session_id, plugin, opaque_id));
 	};
 
 	struct AttachData {
 		int64_t id;
-		XTOSTRUCT(O(id));
+		XPACK(O(id));
 	};
 
 	struct AttachResponse : public JanusResponse {
 		AttachData data;
-		XTOSTRUCT(I(JanusResponse), O(data));
+		XPACK(I(JanusResponse), O(data));
 	};
 
 	struct DetachRequest : public JanusRequest {
 		int64_t session_id;
 		int64_t handle_id;
-		XTOSTRUCT(I(JanusRequest), O(session_id, handle_id));
+		XPACK(I(JanusRequest), O(session_id, handle_id));
 	};
 
 	struct HangupRequest : public JanusRequest {
 		int64_t session_id;
 		int64_t handle_id;
-		XTOSTRUCT(I(JanusRequest), O(session_id, handle_id));
+		XPACK(I(JanusRequest), O(session_id, handle_id));
 	};
 
 	struct HangupResponse : public JanusResponse {
 		std::string reason;
-		XTOSTRUCT(I(JanusResponse), O(reason));
+		XPACK(I(JanusResponse), O(reason));
 	};
 
 	struct MediaResponse : public JanusResponse {
 		std::string type;
 		bool receiving;
-		XTOSTRUCT(I(JanusResponse), O(type, receiving));
+		XPACK(I(JanusResponse), O(type, receiving));
 	};
 
 	struct SlowlinkResponse : public JanusResponse {
 		bool uplink;
 		bool lost;
-		XTOSTRUCT(I(JanusResponse), O(uplink, lost));
+		XPACK(I(JanusResponse), O(uplink, lost));
 	};
 
 	struct JanusEvent : public JanusResponse {
 		PluginData plugindata;
 		Jsep jsep;
-		XTOSTRUCT(I(JanusResponse), O(plugindata, jsep));
+		XPACK(I(JanusResponse), O(plugindata, jsep));
 	};
 
 	struct DestroyRequest : public JanusRequest {
 		int64_t session_id;
 
-		XTOSTRUCT(I(JanusRequest), O(session_id));
+		XPACK(I(JanusRequest), O(session_id));
 	};
 
 	struct CreateSessionData {
 		int64_t id;
-		XTOSTRUCT(O(id));
+		XPACK(O(id));
 	};
 
 	struct CreateSessionResponse : public JanusResponse {
 		CreateSessionData data;
-		XTOSTRUCT(I(JanusResponse), O(data));
+		XPACK(I(JanusResponse), O(data));
 	};
 
 	struct CandidateData {
@@ -141,26 +140,26 @@ namespace vi {
 		std::string sdpMid;
 		int64_t sdpMLineIndex;
 		bool completed;
-		XTOSTRUCT(O(candidate, sdpMid, sdpMLineIndex, completed));
+		XPACK(O(candidate, sdpMid, sdpMLineIndex, completed));
 	};
 
 	struct TrickleRequest : public JanusRequest {
 		int64_t session_id;
 		int64_t handle_id;
 		CandidateData candidate;
-		XTOSTRUCT(I(JanusRequest), O(session_id, handle_id, candidate));
+		XPACK(I(JanusRequest), O(session_id, handle_id, candidate));
 	};
 
 	struct TrickleResponse : public JanusResponse {
 		CandidateData candidate;
-		XTOSTRUCT(I(JanusResponse), O(candidate));
+		XPACK(I(JanusResponse), O(candidate));
 
 	};
 	struct MessageRequest : public JanusRequest {
 		int64_t session_id;
 		int64_t handle_id;
 		std::string body;
-		XTOSTRUCT(I(JanusRequest), O(session_id, handle_id, body));
+		XPACK(I(JanusRequest), O(session_id, handle_id, body));
 	};
 
 	struct JsepRequest : public JanusRequest {
@@ -168,6 +167,6 @@ namespace vi {
 		int64_t handle_id;
 		std::string body;
 		std::string jsep;
-		XTOSTRUCT(I(JanusRequest), O(session_id, handle_id, body, jsep));
+		XPACK(I(JanusRequest), O(session_id, handle_id, body, jsep));
 	};
 }

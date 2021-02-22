@@ -11,6 +11,7 @@
 #include "i_message_transport_listener.h"
 #include "logger/logger.h"
 #include "message_models.h"
+#include "xpack/json_decoder.h"
 
 namespace vi {
 	MessageTransport::MessageTransport()
@@ -136,17 +137,18 @@ namespace vi {
 			data = data.replace(pos, tag2.length(), "\"leaving\": 0");
 		}
 
-		JanusResponse respone;
-		x2struct::X::loadjson(data, respone, false, true);
+		JanusResponse response;
+		xpack::JsonDecoder decoder(data);
+		decoder.decode(nullptr, response, nullptr);
 
-		if (!respone.xhas("janus")) {
+		if (!decoder.find("janus")) {
 			DLOG("!response->xhas(\"janus\")");
 			return;
 		}
 
-		if (respone.xhas("transaction") && (respone.janus == "ack" || respone.janus == "success" || respone.janus == "error" || respone.janus == "server_info")) {
+		if (decoder.find("transaction") && (response.janus == "ack" || response.janus == "success" || response.janus == "error" || response.janus == "server_info")) {
 			std::lock_guard<std::mutex> locker(_callbackMutex);
-			const std::string& transaction = respone.transaction;
+			const std::string& transaction = response.transaction;
 			if (_callbacksMap.find(transaction) != _callbacksMap.end()) {
 				std::shared_ptr<JCCallback> callback = _callbacksMap[transaction];
 				_callbacksMap.erase(transaction);

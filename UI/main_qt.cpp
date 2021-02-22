@@ -34,6 +34,8 @@
 #include "participant.h"
 #include "api/media_stream_interface.h"
 #include "janus_connection_dialog.h"
+#include "xpack/json.h"
+#include "message_models.h"
 
 using namespace core;
 
@@ -58,8 +60,30 @@ static void initOpenGL() {
 	QSurfaceFormat::setDefaultFormat(format);
 }
 
+struct XJanusResponse {
+	std::string janus;
+	std::string transaction;
+	XPACK(O(janus, transaction));
+};
+
+struct XCreateSessionData {
+	int64_t id;
+	XPACK(O(id));
+};
+
+struct XCreateSessionResponse : public XJanusResponse {
+	XCreateSessionData data;
+	XPACK(I(XJanusResponse), O(data));
+};
+
 int main(int argc, char *argv[])
 {
+
+	std::string js = "{\"janus\":\"success\",\"transaction\":\"RftQMdXKkq6q\",\"data\":{\"id\":6053426257610390}}";
+	XCreateSessionResponse model;
+	xpack::json::decode(js, model);
+
+	std::string str = xpack::json::encode(model);
 	vi::LoggerInstaller::instance()->install();
 
 	registerMetaTypes();

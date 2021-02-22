@@ -19,7 +19,7 @@ namespace vi {
 			bool simulcast;
 			bool talking;
 
-			XTOSTRUCT(O(id, display, audio_codec, video_codec, simulcast, talking));
+			XPACK(O(id, display, audio_codec, video_codec, simulcast, talking));
 		};
 
 		// Video Room event
@@ -27,7 +27,7 @@ namespace vi {
 			int64_t id;
 			std::string display;
 
-			XTOSTRUCT(O(id, display));
+			XPACK(O(id, display));
 		};
 
 		struct EventData {
@@ -47,7 +47,7 @@ namespace vi {
 			std::string audio_codec;
 			std::string video_codec;
 
-			XTOSTRUCT(O(videoroom,
+			XPACK(O(videoroom,
 				error_code,
 				error,
 				joining,
@@ -69,12 +69,12 @@ namespace vi {
 			std::string plugin;
 			EventData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct VideoRoomEvent : public JanusResponse {
 			EventPluginData plugindata;
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -114,14 +114,14 @@ namespace vi {
 			int64_t room;
 			std::string display;
 			//std::string token;
-			XTOSTRUCT(O(request, ptype, room, display/*, token*/));
+			XPACK(O(request, ptype, room, display/*, token*/));
 		};
 
 		struct Attendee {
 			int64_t id;
 			std::string display;
 
-			XTOSTRUCT(O(id, display));
+			XPACK(O(id, display));
 		};
 
 		struct PublisherJoinData {
@@ -133,20 +133,20 @@ namespace vi {
 			std::vector<Publisher> publishers;
 			std::vector<Attendee> attendees;
 
-			XTOSTRUCT(O(videoroom, room, description, id, private_id, publishers, attendees));
+			XPACK(O(videoroom, room, description, id, private_id, publishers, attendees));
 		};
 
 		struct PublisherJoinPluginData {
 			std::string plugin;
 			PublisherJoinData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct PublisherJoinEvent : public JanusResponse {
 			PublisherJoinPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 
@@ -196,7 +196,7 @@ namespace vi {
 			int64_t feed;
 			int64_t private_id;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				room,
 				ptype,
 				feed,
@@ -210,37 +210,37 @@ namespace vi {
 			int64_t feed;
 			std::string display;
 
-			XTOSTRUCT(O(videoroom, room, feed, display));
+			XPACK(O(videoroom, room, feed, display));
 		};
 
 		struct SubscriberJoinPluginData {
 			std::string plugin;
 			SubscriberJoinData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct SubscriberJoinEvent : public JanusResponse {
 			SubscriberJoinPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		struct UnpublishRequest {
 			std::string request = "unpublish";
-			XTOSTRUCT(O(request));
+			XPACK(O(request));
 		};
 
 		struct StartPeerConnectionRequest {
 			std::string request = "start";
 			int64_t room;
-			XTOSTRUCT(O(request, room));
+			XPACK(O(request, room));
 		};
 
 		struct PausePeerConnectionRequest {
 			std::string request = "pause";
 			int64_t room;
-			XTOSTRUCT(O(request, room));
+			XPACK(O(request, room));
 		};
 
 		/*To conclude, you can leave a room you previously joined as publisher
@@ -289,7 +289,7 @@ namespace vi {
 
 		struct LeaveRequest {
 			std::string request = "leave";
-			XTOSTRUCT(O(request));
+			XPACK(O(request));
 		};
 
 		//\verbatim
@@ -315,7 +315,7 @@ namespace vi {
 			bool is_private = false;
 			std::vector<std::string> allowed;
 
-			XTOSTRUCT(O(request),
+			XPACK(O(request),
 				O(room),
 				O(permanent),
 				O(description),
@@ -331,20 +331,20 @@ namespace vi {
 			bool permanent;
 			bool exists;
 
-			XTOSTRUCT(O(videoroom, room, permanent, exists));
+			XPACK(O(videoroom, room, permanent, exists));
 		};
 
 		struct RoomCurdPluginData {
 			std::string plugin;
 			RoomCurdData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct RoomCurdResponse : public JanusResponse {
 			RoomCurdPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -413,7 +413,7 @@ namespace vi {
 			int64_t new_publishers;
 			bool permanent;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				room,
 				secret,
 				new_description,
@@ -446,7 +446,7 @@ namespace vi {
 			std::string secret;
 			bool permanent;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				room,
 				secret,
 				permanent));
@@ -466,7 +466,7 @@ namespace vi {
 			std::string request = "exists";
 			int64_t room;
 
-			XTOSTRUCT(O(request, room));
+			XPACK(O(request, room));
 		};
 
 		/*
@@ -491,7 +491,7 @@ namespace vi {
 			int64_t room;
 			std::vector<std::string> allowed;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				secret,
 				action,
 				room,
@@ -512,7 +512,7 @@ namespace vi {
 		 //\endverbatim
 		struct TokenInfo {
 			std::string token;
-			XTOSTRUCT(O(token));
+			XPACK(O(token));
 		};
 
 		struct AllowedData {
@@ -521,20 +521,20 @@ namespace vi {
 			std::vector<TokenInfo> allowed;
 			int64_t error_code = 0;
 			std::string error;
-			XTOSTRUCT(O(videoroom, room, allowed, error_code, error));
+			XPACK(O(videoroom, room, allowed, error_code, error));
 		};
 
 		struct AllowedPluginData {
 			std::string plugin;
 			AllowedData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct AllowedResponse : public JanusResponse {
 			AllowedPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -559,7 +559,7 @@ namespace vi {
 			int64_t room;
 			int64_t id;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				secret,
 				room,
 				id));
@@ -569,20 +569,20 @@ namespace vi {
 			std::string videoroom;
 			int64_t error_code = 0;
 			std::string error;
-			XTOSTRUCT(O(videoroom, error_code, error));
+			XPACK(O(videoroom, error_code, error));
 		};
 
 		struct KickPluginData {
 			std::string plugin;
 			KickData data;
 
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct KickResponse : public JanusResponse {
 			KickPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -598,7 +598,7 @@ namespace vi {
 		struct FetchRoomsListRequest {
 			std::string request = "list";
 
-			XTOSTRUCT(O(request));
+			XPACK(O(request));
 		};
 
 		struct VideoRoomInfo {
@@ -615,7 +615,7 @@ namespace vi {
 			bool lock_record;
 			int64_t num_participants;
 
-			XTOSTRUCT(O(room,
+			XPACK(O(room,
 				description,
 				max_publishers,
 				bitrate,
@@ -634,19 +634,19 @@ namespace vi {
 			std::vector<VideoRoomInfo> list;
 			int64_t error_code = 0;
 			std::string error;
-			XTOSTRUCT(O(videoroom, list, error_code, error));
+			XPACK(O(videoroom, list, error_code, error));
 		};
 
 		struct FetchRoomsListPluginData {
 			std::string plugin;
 			FetchRoomsListData data;
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct FetchRoomsListResponse : public JanusResponse {
 			FetchRoomsListPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -664,7 +664,7 @@ namespace vi {
 			std::string request = "listparticipants";
 			int64_t room;
 
-			XTOSTRUCT(O(request, room));
+			XPACK(O(request, room));
 		};
 
 		struct ParticipantInfo {
@@ -673,7 +673,7 @@ namespace vi {
 			bool publisher;
 			bool talking;
 
-			XTOSTRUCT(O(id, display, publisher, talking));
+			XPACK(O(id, display, publisher, talking));
 		};
 
 		struct ParticipantData {
@@ -682,19 +682,19 @@ namespace vi {
 			std::vector<ParticipantInfo> participants;
 			int64_t error_code = 0;
 			std::string error;
-			XTOSTRUCT(O(videoroom, room, participants, error_code, error));
+			XPACK(O(videoroom, room, participants, error_code, error));
 		};
 
 		struct ParticipantPluginData {
 			std::string plugin;
 			ParticipantData data;
-			XTOSTRUCT(O(plugin, data));
+			XPACK(O(plugin, data));
 		};
 
 		struct FetchParticipantsResponse : public JanusResponse {
 			ParticipantPluginData plugindata;
 
-			XTOSTRUCT(I(JanusResponse), O(plugindata));
+			XPACK(I(JanusResponse), O(plugindata));
 		};
 
 		/*
@@ -739,7 +739,7 @@ namespace vi {
 			int64_t audio_level_average;
 			int64_t audio_active_packets;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				video,
 				audio,
 				data,
@@ -790,7 +790,7 @@ namespace vi {
 			//int64_t audio_level_average;
 			//int64_t audio_active_packets;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				video,
 				audio,
 				data
@@ -843,7 +843,7 @@ namespace vi {
 			int64_t audio_level_average;
 			int64_t audio_active_packets;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				video,
 				audio,
 				data,
@@ -873,7 +873,7 @@ namespace vi {
 			bool audio;
 			bool data;
 
-			XTOSTRUCT(O(request,
+			XPACK(O(request,
 				feed,
 				video,
 				audio,

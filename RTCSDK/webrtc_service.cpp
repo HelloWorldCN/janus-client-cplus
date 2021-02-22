@@ -34,6 +34,7 @@
 #include "thread_manager.h"
 #include "message_models.h"
 #include "sdp_utils.h"
+#include "xpack/json.h"
 
 namespace vi {
 
@@ -149,7 +150,7 @@ namespace vi {
 		auto wself = weak_from_this();
 		auto lambda = [wself, pluginClient](const std::string& json) {
 			AttachResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::json::decode(json, model);
 			DLOG("model->janus = {}", model.janus);
 			if (auto self = wself.lock()) {
 				if (model.janus == "success") {
@@ -335,7 +336,7 @@ namespace vi {
 							return;
 						}
 						JanusResponse model;
-						x2struct::X::loadjson(json, model, false, true);
+						xpack::json::decode(json, model);
 
 						if (event->callback) {
 							if (model.janus == "success" || model.janus == "ack") {
@@ -1022,7 +1023,7 @@ namespace vi {
 	void WebRTCService::onMessage(const std::string& json)
 	{
 		JanusResponse response;
-		x2struct::X::loadjson(json, response, false, true);
+		xpack::json::decode(json, response);
 
 		int64_t sender = response.sender;
 		auto& pluginClient = getHandler(sender);
@@ -1042,19 +1043,20 @@ namespace vi {
 		}
 		else if (response.janus == "trickle") {
 			TrickleResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::JsonDecoder decoder(json);
+			decoder.decode(nullptr, model, nullptr);;
 			// We got a trickle candidate from Janus
-			bool hasCandidata = model.xhas("candidate");
+			bool hasCandidata = decoder.find("candidate");
 
 			auto& context = pluginClient->pluginContext()->webrtcContext;
 			if (context->pc && context->remoteSdp) {
 				// Add candidate right now
-				if (!hasCandidata || (hasCandidata && model.candidate.xhas("completed") && model.candidate.completed == true)) {
+				if (!hasCandidata || (hasCandidata && decoder.find("completed") && model.candidate.completed == true)) {
 					// end-of-candidates
 					context->pc->AddIceCandidate(nullptr);
 				}
 				else {
-					if (hasCandidata && model.candidate.xhas("sdpMid") && model.candidate.xhas("sdpMLineIndex")) {
+					if (hasCandidata && decoder.find("sdpMid") && decoder.find("sdpMLineIndex")) {
 						const auto& candidate = model.candidate.candidate;
 						DLOG("Got a trickled candidate on session: ", _sessionId);
 						DLOG("Adding remote candidate: {}", candidate.c_str());
@@ -1074,7 +1076,7 @@ namespace vi {
 				// We didn't do setRemoteDescription (trickle got here before the offer?)
 				DLOG("We didn't do setRemoteDescription (trickle got here before the offer?), caching candidate");
 
-				if (hasCandidata &&  model.candidate.xhas("sdpMid") && model.candidate.xhas("sdpMLineIndex")) {
+				if (hasCandidata && decoder.find("sdpMid") && decoder.find("sdpMLineIndex")) {
 					const auto& candidate = model.candidate.candidate;
 					DLOG("Got a trickled candidate on session: {}", _sessionId);
 					DLOG("Adding remote candidate: {}", candidate.c_str());
@@ -1105,7 +1107,7 @@ namespace vi {
 			DLOG("Got a hangup event on session: {}", _sessionId);
 
 			HangupResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::json::decode(json, model);
 			_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, reason = model.reason]() {
 				pluginClient->onWebrtcState(false, reason);
 				pluginClient->onHangup();
@@ -1123,7 +1125,7 @@ namespace vi {
 			// Media started/stopped flowing
 			DLOG("Got a media event on session: {}", _sessionId);
 			MediaResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::json::decode(json, model);
 
 			_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, model]() {
 				pluginClient->onMediaState(model.type, model.receiving);
@@ -1132,7 +1134,7 @@ namespace vi {
 		else if (response.janus == "slowlink") {
 			DLOG("Got a slowlink event on session: {}", _sessionId);
 			SlowlinkResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::json::decode(json, model);
 			_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, model]() {
 				pluginClient->onSlowLink(model.uplink, model.lost);
 			});
@@ -1141,17 +1143,18 @@ namespace vi {
 			DLOG("Got a plugin event on session: {}", _sessionId);
 
 			JanusEvent event;
-			x2struct::X::loadjson(json, event, false, true);
+			xpack::JsonDecoder decoder(json);
+			decoder.decode(nullptr, event, nullptr);
 
-			if (!event.xhas("plugindata")) {
+			if (!decoder.find("plugindata")) {
 				ELOG("Missing plugindata...");
 				return;
 			}
 			
 			DLOG(" -- Event is coming from {} ({})", sender, event.plugindata.plugin.c_str());
 
-			//std::string data = x2struct::X::tojson(event.plugindata);
-			std::string jsep = x2struct::X::tojson(event.jsep);
+			//std::string data = xpack::json::encode(event.plugindata);
+			std::string jsep = xpack::json::encode(event.jsep);
 
 			_eventHandlerThread->PostTask(RTC_FROM_HERE, [pluginClient, json, jsep]() {
 				pluginClient->onMessage(json, jsep);
@@ -1176,7 +1179,7 @@ namespace vi {
 		auto wself = weak_from_this();
 		auto lambda = [wself, event](const std::string& json) {
 			CreateSessionResponse model;
-			x2struct::X::loadjson(json, model, false, true);
+			xpack::json::decode(json, model);
 			DLOG("model.janus = {}", model.janus);
 			if (auto self = wself.lock()) {
 				self->_sessionId = model.session_id > 0 ? model.session_id : model.data.id;

@@ -8,7 +8,7 @@
 #include <iostream>
 #include "message_transport.h"
 #include "message_models.h"
-#include "x2struct.hpp"
+#include "xpack/json.h"
 #include "string_utils.h"
 #include "logger/logger.h"
 #include "thread_manager.h"
@@ -68,7 +68,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -84,7 +84,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -100,7 +100,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -116,7 +116,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -134,7 +134,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -151,7 +151,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -170,7 +170,7 @@ namespace vi {
 
 			auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-			std::string data = x2struct::X::tojson(request);
+			std::string data = xpack::json::encode(request);
 			DLOG("before replace, data = {}", data.c_str());
 			std::string tag("\"#-MESSAGE-#\"");
 			size_t pos = data.find(tag);
@@ -193,7 +193,7 @@ namespace vi {
 
 			auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-			std::string data = x2struct::X::tojson(request);
+			std::string data = xpack::json::encode(request);
 
 			DLOG("before replace, data = {}", data.c_str());
 
@@ -229,7 +229,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
@@ -246,7 +246,7 @@ namespace vi {
 
 		auto handler = std::make_shared<JCHandler>(request.transaction, wrapAsyncCallback(callback));
 
-		std::string data = x2struct::X::tojson(request);
+		std::string data = xpack::json::encode(request);
 
 		_transport->send(data, handler);
 	}
