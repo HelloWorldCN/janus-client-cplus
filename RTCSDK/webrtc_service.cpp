@@ -75,7 +75,7 @@ namespace vi {
 		_client->addListener(shared_from_this());
 		_client->init();
 
-		//_heartbeatTaskScheduler = TaskScheduler::create();
+		_heartbeatTaskScheduler = TaskScheduler::create();
 
 		if (!_pcf) {
 			_signaling = rtc::Thread::Create();
