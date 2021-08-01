@@ -66,7 +66,11 @@ Get the code:
   //#include <QApplication>
   #include <QtWidgets/QApplication>
   ```
-  
+  4，去Visual Studio的Qt VS Tools菜单里面选择Qt Options里面的QT->Vesions选项，在Path里面追加你安装的Qt的include所在的父目录路径，在我这里是
+  ```
+  C:\Qt\Qt5.12.11\5.12.11\msvc2017_64\include
+  ```
+  5，去Visual Studio的Qt VS Tools菜单里面选择Qt Project Settings,设定Version为你在第四步设定的Qt。
 ## UI
 <img src="https://github.com/ouxianghui/janus_client/blob/main/janus-client-ui.png" height="500" /><br>
 
