@@ -46,7 +46,7 @@ Get the code:
   
   1，先编译一下RTCSDK
   
-  2，将UI工程设定为主工程。右键打开属性，UI Property Pages里面的Linker里面的Input，需要加上如下内容,如果已经设定了,此步骤可以忽略.
+  2，将UI工程设定为主工程。右键打开属性，UI Property Pages里面的Linker里面的Input，需要加上如下内容.
   ```
   Qt5Gui.lib
   Qt5Core.lib
@@ -57,6 +57,8 @@ Get the code:
   ```
   PATH=$(QTDIR)\bin%3bC:\Users\tyori\Documents\janus-client\3rd\glew\bin\Release\x64%3b$(PATH)
   ```
+  如果已经设定了,此步骤可以忽略.
+  
   3，编译的时候会出现一些找不头文件的错误，假设你的Qt的include目录是
   ```
   C:\Qt\Qt5.12.11\5.12.11\msvc2017_64\include
@@ -67,11 +69,18 @@ Get the code:
   #include <QtWidgets/QApplication>
   ```
   如果没有错误,此步骤可以忽略.
+  
   4，去Visual Studio的Qt VS Tools菜单里面选择Qt Options里面的QT->Vesions选项，在Path里面追加你安装的Qt的include所在的父目录路径，在我这里是
   ```
   C:\Qt\Qt5.12.11\5.12.11\msvc2017_64\include
   ```
+  
   5，去Visual Studio的Qt VS Tools菜单里面选择Qt Project Settings,设定Version为你在第四步设定的Qt。
+  
+  6，去3rd里面的webrtc目录和glew下面的lib和bin目录,解压缩压缩好的包.
+  
+  7，编译执行
+  
 ## UI
 <img src="https://github.com/ouxianghui/janus_client/blob/main/janus-client-ui.png" height="500" /><br>
 
