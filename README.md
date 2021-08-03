@@ -46,7 +46,7 @@ Get the code:
   
   1，先编译一下RTCSDK
   
-  2，将UI工程设定为主工程。右键打开属性，UI Property Pages里面的Linker里面的Input，需要加上如下内容
+  2，将UI工程设定为主工程。右键打开属性，UI Property Pages里面的Linker里面的Input，需要加上如下内容,如果已经设定了,此步骤可以忽略.
   ```
   Qt5Gui.lib
   Qt5Core.lib
@@ -66,6 +66,7 @@ Get the code:
   //#include <QApplication>
   #include <QtWidgets/QApplication>
   ```
+  如果没有错误,此步骤可以忽略.
   4，去Visual Studio的Qt VS Tools菜单里面选择Qt Options里面的QT->Vesions选项，在Path里面追加你安装的Qt的include所在的父目录路径，在我这里是
   ```
   C:\Qt\Qt5.12.11\5.12.11\msvc2017_64\include
