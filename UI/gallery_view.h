@@ -7,7 +7,7 @@
 #ifndef GALLERY_VIEW_H
 #define GALLERY_VIEW_H
 
-#include <QFrame>
+#include <QtWidgets/QFrame>
 #include <vector>
 #include <algorithm>
 #include "api/media_stream_interface.h"

@@ -7,7 +7,7 @@
 #include "gl_video_renderer.h"
 #include <thread>
 #include <array>
-#include <QTimer>
+#include <QtCore/QTimer>
 #include "gl_video_shader.h"
 #include "i420_texture_cache.h"
 #include "logger/logger.h"

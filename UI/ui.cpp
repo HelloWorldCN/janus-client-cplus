@@ -1,9 +1,9 @@
 #include "ui.h"
-#include <QDockWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QToolButton>
+#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QToolButton>
 #include "Service/app_instance.h"
 #include "webrtc_service_interface.h"
 #include "video_room.h"

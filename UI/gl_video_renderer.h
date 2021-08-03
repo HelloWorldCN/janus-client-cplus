@@ -10,10 +10,10 @@
 #include "gl_defines.h"
 #include "api/video/video_sink_interface.h"
 #include "api/video/video_frame.h"
-#include <QTimer>
+#include <QtCore/QTimer>
 #include <mutex>
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <QtWidgets/QOpenGLWidget>
+#include <QtGui/QOpenGLFunctions>
 #include "blockingconcurrentqueue.h"
 
 class GLVideoShader;

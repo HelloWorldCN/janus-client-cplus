@@ -1,7 +1,7 @@
 #ifndef ROOM_INFO_DIALOG_H
 #define ROOM_INFO_DIALOG_H
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
 class RoomInfoDialog;

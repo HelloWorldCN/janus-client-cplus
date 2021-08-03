@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
 #include "ui_janus_connection_dialog.h"
 #include <memory>
 #include "i_webrtc_service_listener.h"

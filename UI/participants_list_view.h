@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QWidget>
+#include <QtWidgets/QWidget>
 #include "ui_participants_list_view.h"
 #include <memory>
 

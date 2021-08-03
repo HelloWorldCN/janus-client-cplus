@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <memory>
 #include "participant.h"
 #include "i_video_room_listener.h"

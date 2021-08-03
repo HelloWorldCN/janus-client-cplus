@@ -7,7 +7,7 @@
 #include "video_room.h"
 #include "gl_video_renderer.h"
 #include "gallery_view.h"
-#include <QCloseEvent>
+#include <QtGui/QCloseEvent>
 #include "participants_list_view.h"
 
 namespace vi {

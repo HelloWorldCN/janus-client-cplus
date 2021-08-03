@@ -2,8 +2,8 @@
 #include "participant.h"
 #include "video_room.h"
 #include "participant_item_view.h"
-#include <QListWidgetItem>
-#include <QVariant>
+#include <QtWidgets/QListWidgetItem>
+#include <QtCore/QVariant>
 
 
 

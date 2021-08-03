@@ -4,36 +4,45 @@
  * Created:   2020-10-01
  **/
 
-#include "ui.h"
+ //STD C++ include
+#include <memory>
+
+//Qt5 include
 #include <QtWidgets/QApplication>
+#include <QtCore/QObject>
+#include <QtGui/QSurfaceFormat>
+
+//WebRTC include
 #include "rtc_base/checks.h"
 #include "rtc_base/ssl_adapter.h"
 #include "rtc_base/win32_socket_init.h"
 #include "rtc_base/win32_socket_server.h"
-#include <QObject>
-#include <memory>
-#include "Service/app_instance.h"
-#include "webrtc_service_interface.h"
-#include <QSurfaceFormat>
-
 #include "api/media_stream_interface.h"
 #include "api/create_peerconnection_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
+#include "api/media_stream_interface.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/audio_processing/include/audio_processing.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "pc/video_track_source.h"
-#include "local_video_capture.h"
-#include "gl_video_renderer.h"
-#include "task_scheduler.h"
+
+//RTCSDK inlcude
 #include "logger/logger_installer.h"
-#include "thread_manager.h"
+#include "Service/app_instance.h"
+#include "local_video_capture.h"
 #include "participant.h"
-#include "api/media_stream_interface.h"
+#include "task_scheduler.h"
+#include "thread_manager.h"
+#include "webrtc_service_interface.h"
+
+//UI include
+#include "ui.h"
+#include "gl_video_renderer.h"
 #include "janus_connection_dialog.h"
+
 
 using namespace core;
 

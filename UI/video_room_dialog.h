@@ -1,7 +1,7 @@
 #ifndef VIDEO_ROOM_DIALOG_H
 #define VIDEO_ROOM_DIALOG_H
 
-#include <QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
 class VideoRoomDialog;
