@@ -39,7 +39,7 @@ https://www.qt.io/offline-installers
 ## Compile
 Get the code:
 
-	git clone --recursive https://github.com/ouxianghui/janus-client.git
+	git clone --recursive https://github.com/HelloWorldCN/janus-client-cplus.git
   注意，这里必须要使用recursive标志，并且你拉下来代码之后，需要去3rd目录下，把相关的zip给解压缩。
   
   Open RTCSln.sln with Visual Studio(2017)，打开了之后，需要
@@ -75,8 +75,5 @@ Get the code:
 <img src="https://github.com/ouxianghui/janus_client/blob/main/janus-client-ui.png" height="500" /><br>
 
 
-## Author
-Jackie Ou 750265900@qq.com
 
-Any thought, suggestion, feedback is welcome!
 
