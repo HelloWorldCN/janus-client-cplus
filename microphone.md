@@ -75,6 +75,16 @@ ctl.!default {
         card 3
 }
 ```
+
+Or, 使用命令
+```nano ~/.asoundrc```
+打开了nano之后，粘贴如下信息，作为缺省的麦克风设备
+
+```
+defaults.pcm.card 3;
+defaults.ctl.card 3;
+```
+
 再次运行
 ```
 arecord test.wav
